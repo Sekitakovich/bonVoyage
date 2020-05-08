@@ -14,11 +14,6 @@
     </style>
 </head>
 <body>
-<form id="main">
-    {% for v in place %}
-    <input type="hidden" class="place" id="{{ v.name }}" value="0" lat="{{ v.lat }}" lng="{{ v.lng }}">
-    {% endfor %}
-</form>
 <div id="map" class="map"></div>
 <script type="text/javascript">
     jQuery(document).ready(function () {
@@ -45,20 +40,20 @@
         });
         const woman = L.icon({
             iconUrl: "../static/images/woman.gif",
-            iconSize: [32, 32]
+            iconSize: [64, 64]
         });
         const marker = L.marker(baseLatLng, {icon: woman});
         marker.addTo(map);
 // -------------------------------------------------------------------------------------------------
-        const place = jQuery('.place');
-        place.each(function(index,value){
-            let ooo = jQuery(value);
-            let lat = parseFloat(ooo.attr('lat'));
-            let lng = parseFloat(ooo.attr('lng'));
-            console.log(lat, lng);
+        const place = JSON.parse('{{ place|safe }}');
+//        console.log(place);
+        for(let name in place){
+            let lat = place[name].lat
+            let lng = place[name].lng
+            console.log(name,lat, lng);
             let mmm = L.marker([lat, lng], {icon: JRC});
             mmm.addTo(map);
-        });
+        }
 // -------------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------------
     });
