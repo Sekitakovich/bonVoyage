@@ -14,10 +14,16 @@
     </style>
 </head>
 <body>
+<form id="main">
+    {% for v in place %}
+    <input type="hidden" class="place" id="{{ v.name }}" value="0" lat="{{ v.lat }}" lng="{{ v.lng }}">
+    {% endfor %}
+</form>
 <div id="map" class="map"></div>
 <script type="text/javascript">
     jQuery(document).ready(function () {
         console.log('start');
+// -------------------------------------------------------------------------------------------------
         const baseLatLng = [35.602654, 139.367475];
 // -------------------------------------------------------------------------------------------------
         const map = L.map('map');
@@ -25,16 +31,34 @@
 // -------------------------------------------------------------------------------------------------
         const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 //            attribution: '© <a href="http://osm.org/copyright">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
-            maxZoom: 19
+            maxZoom: 19,
         });
         tileLayer.addTo(map);
 // -------------------------------------------------------------------------------------------------
+        const JRC = L.icon({
+            iconUrl: "../static/images/jrc.png",
+            iconSize: [32, 17]
+        });
         const grico = L.icon({
             iconUrl: "../static/images/grico.png",
             iconSize: [32, 49]
         });
-        const marker = L.marker(baseLatLng, {icon: grico});
+        const woman = L.icon({
+            iconUrl: "../static/images/woman.gif",
+            iconSize: [32, 32]
+        });
+        const marker = L.marker(baseLatLng, {icon: woman});
         marker.addTo(map);
+// -------------------------------------------------------------------------------------------------
+        const place = jQuery('.place');
+        place.each(function(index,value){
+            let ooo = jQuery(value);
+            let lat = parseFloat(ooo.attr('lat'));
+            let lng = parseFloat(ooo.attr('lng'));
+            console.log(lat, lng);
+            let mmm = L.marker([lat, lng], {icon: JRC});
+            mmm.addTo(map);
+        });
 // -------------------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------------------
     });
