@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <script type="text/javascript" src="../static/jquery-3.5.1.min.js"></script>
-    <link rel="stylesheet" href="../static/leaflet/leaflet.css">
-    <script type="text/javascript" src="../static/leaflet/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="../static/Leaflet.RotatedMarker-master/leaflet.rotatedMarker.js"></script>
     <style>
         .map {
             width: 640px;
@@ -15,14 +16,39 @@
 </head>
 <body>
 <div id="map" class="map"></div>
+<input type="button" id="turnL" value="<">
+<input type="button" id="turnR" value=">">
+<input type="range" id="speed" min="0" max="100">
 <script type="text/javascript">
     jQuery(document).ready(function () {
         console.log('start');
+        const wsserver = 'ws://localhost/ws'
+        const ws = new WebSocket(wsserver);
+        ws.onopen = function (event) {
+            console.log('open');
+        }
+        ws.onmessage = function (event) {
+            const message = JSON.parse(event.data);
+            switch (message.mode) {
+                case 'GPS':
+                    console.log(message);
+                    const angle = message.hdg;
+                    if (angle != heading) {
+                        marker.setRotationAngle(angle);
+                        heading = angle;
+                    }
+                    marker.setLatLng([message.lat, message.lng]);
+                    map.panTo([message.lat, message.lng]);
+                    break;
+                default:
+                    break;
+            }
+        }
 // -------------------------------------------------------------------------------------------------
-        const baseLatLng = [35.602654, 139.367475];
+        const baseLatLng = [0, 0];
 // -------------------------------------------------------------------------------------------------
         const map = L.map('map');
-        map.setView(baseLatLng, 17);
+        map.setView(baseLatLng, 16);
 // -------------------------------------------------------------------------------------------------
         const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 //            attribution: '© <a href="http://osm.org/copyright">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
@@ -30,31 +56,50 @@
         });
         tileLayer.addTo(map);
 // -------------------------------------------------------------------------------------------------
-        const JRC = L.icon({
-            iconUrl: "../static/images/jrc.png",
-            iconSize: [32, 17]
-        });
-        const grico = L.icon({
-            iconUrl: "../static/images/grico.png",
+        const figure = L.icon({
+            iconUrl: "../static/images/redAllow.png",
             iconSize: [32, 49]
         });
-        const woman = L.icon({
-            iconUrl: "../static/images/woman.gif",
-            iconSize: [64, 64]
-        });
-        const marker = L.marker(baseLatLng, {icon: woman});
+        let heading = 0;
+        const marker = L.marker(baseLatLng, {icon: figure});
         marker.addTo(map);
+
 // -------------------------------------------------------------------------------------------------
-        const place = JSON.parse('{{ place|safe }}');
-//        console.log(place);
-        for(let name in place){
-            let lat = place[name].lat
-            let lng = place[name].lng
-            console.log(name,lat, lng);
-            let mmm = L.marker([lat, lng], {icon: JRC});
-            mmm.addTo(map);
+        function Heading(LR) { // console.log(LR);
+            const url = 'turn';
+            const request = {
+                mode: 'Turn',
+                direction: LR
+            }
+            jQuery.ajax(url, {
+                type: 'GET',
+                data: request,
+                datatype: 'JSON',
+            });
         }
+
+        const turnL = jQuery('#turnL');
+        const turnR = jQuery('#turnR');
+        turnL.on('click', function (event) {
+            Heading('L');
+        });
+        turnR.on('click', function (event) {
+            Heading('R');
+        });
 // -------------------------------------------------------------------------------------------------
+        const speed = jQuery('#speed');
+        speed.on('change', function (event) { // console.log(speed.val());
+            const url = 'accel';
+            const request = {
+                mode: 'Speed',
+                value: speed.val()
+            }
+            jQuery.ajax(url, {
+                type: 'GET',
+                data: request,
+                datatype: 'JSON',
+            });
+        });
 // -------------------------------------------------------------------------------------------------
     });
 </script>
