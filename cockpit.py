@@ -3,14 +3,7 @@ from datetime import datetime as dt
 import math
 import time
 
-
-@dataclass()
-class GPS(object):
-    latDMM: float = 0.0
-    lngDMM: float = 0.0
-    spdKMH: float = 0.0
-    heading: float = 0.0
-    # acc: float = 0.0
+from common import GPS, Constatnts
 
 
 class Cockpit(object):
@@ -50,6 +43,7 @@ class Cockpit(object):
         return value
 
     def current(self) -> GPS:
+        utc = dt.utcnow()
         now = dt.now()
         secs = (now - self.lastDT).total_seconds()  # 経過秒数の取得
         self.lastDT = now
@@ -59,7 +53,7 @@ class Cockpit(object):
         self.latDMM += math.sin(radian) * dist
         self.lngDMM += math.cos(radian) * dist
 
-        return GPS(latDMM=self.latDMM, lngDMM=self.lngDMM, spdKMH=self.kmH, heading=self.heading)
+        return GPS(latDMM=self.latDMM, lngDMM=self.lngDMM, spdKMH=self.kmH, heading=self.heading, at=utc.strftime(Constatnts.DateTime.timeFormat))
 
 
 if __name__ == '__main__':
