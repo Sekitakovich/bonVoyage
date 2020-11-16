@@ -22,9 +22,11 @@
 <input type="button" id="turnL" value="<">
 <input type="button" id="turnR" value=">">
 <input type="range" id="speed" min="0" max="100">
+<input type="button" id="navi" value="NAVI">
 <script type="text/javascript">
     jQuery(document).ready(function () {
         console.log('start');
+        let navigationMode = true;
         const wsserver = 'ws://localhost/ws'
         const ws = new WebSocket(wsserver);
         ws.onopen = function (event) {
@@ -34,14 +36,15 @@
             const message = JSON.parse(event.data);
             switch (message.mode) {
                 case 'GPS':
-                    {#console.log(message);#}
-                    const angle = message.hdg;
-                    if (angle != heading) {
-                        marker.setRotationAngle(angle);
-                        heading = angle;
+                    if (navigationMode) {
+                        const angle = message.hdg;
+                        if (angle != heading) {
+                            marker.setRotationAngle(angle);
+                            heading = angle;
+                        }
+                        marker.setLatLng([message.lat, message.lng]);
+                        map.panTo([message.lat, message.lng]);
                     }
-                    marker.setLatLng([message.lat, message.lng]);
-                    map.panTo([message.lat, message.lng]);
                     break;
                 default:
                     break;
@@ -103,6 +106,12 @@
                 data: request,
                 datatype: 'JSON',
             });
+        });
+// -------------------------------------------------------------------------------------------------
+        const navi = jQuery('#navi');
+        navi.on('click', function (event) {
+            console.log('NAVI');
+            navigationMode = !navigationMode;
         });
 // -------------------------------------------------------------------------------------------------
     });
