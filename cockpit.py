@@ -50,15 +50,19 @@ class Cockpit(object):
 
         dist = (self.kmH * secs) / (60 * 60)  # 移動距離(m)
         radian = self.headingToRadian(heading=self.heading)  # 方位(真上が0で時計回りな座標系)
-        self.latDMM += math.sin(radian) * dist
-        self.lngDMM += math.cos(radian) * dist
+
+        latPlus = math.sin(radian) * dist
+        lngPlus = math.cos(radian) * dist
+
+        self.latDMM += latPlus
+        self.lngDMM += lngPlus
 
         return GPS(latDMM=self.latDMM, lngDMM=self.lngDMM, spdKMH=self.kmH, heading=self.heading, at=utc.strftime(Constatnts.DateTime.timeFormat))
 
 
 if __name__ == '__main__':
     def main():
-        C = Cockpit(kmH=100)
+        C = Cockpit(kmH=36)
         for a in range(10):
             time.sleep(1)
             ooo = C.current()

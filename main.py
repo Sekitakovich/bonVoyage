@@ -78,7 +78,7 @@ class Main(object):
 
 if __name__ == '__main__':
     def main():
-        M = Main(latDEG=35.602119, lngDEG=139.368418, spdKMH=40, heading=60)
+        M = Main(latDEG=35.602119, lngDEG=139.368418, spdKMH=36,  heading=60)
 
 
     main()
