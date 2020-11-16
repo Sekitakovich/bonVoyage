@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../static/leaflet/leaflet.css" />
     <script src="../static/leaflet/leaflet.js"></script>
     <script src="../static/Leaflet.RotatedMarker-master/leaflet.rotatedMarker.js"></script>
+    <script src="../static/leaflet-grayscale-master/TileLayer.Grayscale.js"></script>
     <style>
         .map {
             width: 640px;
@@ -52,7 +53,7 @@
         const map = L.map('map');
         map.setView(baseLatLng, 16);
 // -------------------------------------------------------------------------------------------------
-        const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        const tileLayer = L.tileLayer.grayscale('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 //            attribution: '© <a href="http://osm.org/copyright">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
             maxZoom: 19,
         });
@@ -60,7 +61,8 @@
 // -------------------------------------------------------------------------------------------------
         const figure = L.icon({
             iconUrl: "../static/images/drone.png",
-            iconSize: [32, 32]
+            iconSize: [32, 32],
+            iconAnchor: [16, 16],
         });
         let heading = 0;
         const marker = L.marker(baseLatLng, {icon: figure});

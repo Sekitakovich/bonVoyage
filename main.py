@@ -67,6 +67,7 @@ class Main(object):
                     info = VesselINFO(spd=self.cockpit.kmH, hdg=self.cockpit.heading,
                                       lat=self.cockpit.DMMtoDEG(val=current.latDMM),
                                       lng=self.cockpit.DMMtoDEG(val=current.lngDMM))
+                    logger.info(info)
                     message = json.dumps(asdict(info))
                     self.ws.broadCast(message=message)
             except (KeyboardInterrupt) as e:
