@@ -8,10 +8,19 @@ class Constatnts(object):
 
 
 @dataclass()
-class GPS(object):
-    latDMM: float = 0.0
-    lngDMM: float = 0.0
-    spdKMH: float = 0.0
-    heading: float = 0.0
-    # acc: float = 0.0
+class GPSSensor(object):
+    GPGGA: bytes = b''
+    GPGLL: bytes = b''
+    GPRMC: bytes = b''
+    GPZDA: bytes = b''
+
+
+@dataclass()
+class GoogleMapLatLng(object):
+    mode: str = 'GPS'
+    lat: float = 0.0
+    lng: float = 0.0
+    spd: float = 0.0
+    hdg: float = 0.0
+    acc: float = 0.0
     at: str = ''

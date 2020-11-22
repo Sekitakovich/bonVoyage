@@ -7,6 +7,7 @@ from loguru import logger
 
 from cockpit import Cockpit
 from websocketserver import WebsocketServer
+from common import GoogleMapLatLng
 
 
 @dataclass()
@@ -50,35 +51,30 @@ class Main(object):
         res.content = self.api.template('main.html')
 
     def cruise(self):
-        heartBeat = Event()
-
-        def tick():
-            while True:
-                heartBeat.set()
-                time.sleep(1)
-
-        timeKeeper = Thread(target=tick, daemon=True)
-        timeKeeper.start()
+        self.cockpit.start()
         while True:
             try:
-                if heartBeat.wait():
-                    heartBeat.clear()
-                    current = self.cockpit.current()
-                    info = VesselINFO(spd=self.cockpit.kmH, hdg=self.cockpit.heading,
-                                      lat=self.cockpit.DMMtoDEG(val=current.latDMM),
-                                      lng=self.cockpit.DMMtoDEG(val=current.lngDMM))
-                    logger.info(info)
-                    message = json.dumps(asdict(info))
+                if self.cockpit.GPSready.wait():
+                    self.cockpit.GPSready.clear()
+                    # print(self.cockpit.location)
+                    location = GoogleMapLatLng(
+                        lat=self.cockpit.latDEG, lng=self.cockpit.lngDEG,
+                        spd=self.cockpit.kmH, hdg=self.cockpit.heading)
+                    message = json.dumps(asdict(location))
+                    # print(message)
                     self.ws.broadCast(message=message)
             except (KeyboardInterrupt) as e:
+                self.cockpit.stop()
                 logger.error(e)
                 break
-        timeKeeper.join()
+
+        self.cockpit.join()
+        # timeKeeper.join()
 
 
 if __name__ == '__main__':
     def main():
-        M = Main(latDEG=35.602119, lngDEG=139.368418, spdKMH=36,  heading=60)
+        M = Main(latDEG=35.602119, lngDEG=139.368418, spdKMH=36, heading=60)
 
 
     main()
